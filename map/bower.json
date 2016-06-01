@@ -1,0 +1,17 @@
+{
+  "name": "map",
+  "description": "",
+  "main": "gulpfile.js",
+  "authors": [
+    "Simon Elliston Ball <simon@simonellistonball.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

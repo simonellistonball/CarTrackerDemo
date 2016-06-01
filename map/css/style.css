@@ -1,0 +1,28 @@
+/**/
+#map { width: 1200px; height: 800px}
+
+path.country {
+  stroke-width: 1px;
+  stroke: #ccc;
+  fill: none;
+}
+
+rect.plot {
+  fill: rgba(255,255,255,0.75);
+  stroke-width: 1px;
+  stroke: #000;
+}
+
+path.graph {
+  fill: none;
+  stroke: #333;
+  stroke-width: 1px;
+}
+
+path.wifi {
+  fill: lightblue;
+}
+
+path.lte {
+  fill: lightgreen;
+}
