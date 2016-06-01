@@ -181,8 +181,8 @@ function mutateLimitTo(arr, l) {
   return arr;
 }
 
-var ws = new WebSocket("ws://localhost:5000/ws");
-ws.onmessage = function(event) {
+function processEvent(event) {
+  console.log(event);
   try {
     var msg = JSON.parse(event.data);
     switch (msg.type) {
@@ -207,4 +207,9 @@ ws.onmessage = function(event) {
   } catch (e) {
     console.log('Dodgy data: ', e);
   }
+}
+
+var eb = new vertx.EventBus('http://ec2-52-33-241-152.us-west-2.compute.amazonaws.com:8050/eventbus/');
+eb.onopen = function() {
+  eb.registerHandler("test.123", processEvent);
 };
