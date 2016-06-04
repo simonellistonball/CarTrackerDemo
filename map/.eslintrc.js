@@ -4,7 +4,10 @@ module.exports = {
     "globals": {
       "L": true,
       "d3": true,
-      "WebSocket": true
+      "WebSocket": true,
+      "vertx": true,
+      "document": true,
+      "window": true
     },
     "rules": {
       "one-var": 0,
