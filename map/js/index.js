@@ -1,7 +1,7 @@
 
 // settings
-var graphWidth = 120;
-var graphHeight = 150;
+var graphWidth = 250;
+var graphHeight = 300;
 
 var trailDepth = 30;
 var graphN = 60;
@@ -106,7 +106,6 @@ d3.json("/wifis.json", function(error, collection) {
     positionsProjected = positions.map(function(i) {
       return projectLatLon(i[0], i[1]);
     });
-    console.log(positionsProjected);
     trace.attr('d', lineFunction);
   }
 });
@@ -141,7 +140,7 @@ var graphs = ['wifi', 'lte'].map(function(v, i) {
     .datum(data.rates[v]);
 });
 
-var duration = 1000;
+var duration = 5000;
 
 var now = new Date();
 var x = d3.time.scale()
@@ -149,7 +148,7 @@ var x = d3.time.scale()
     .range([0, graphWidth]);
 
 var y = d3.scale.linear()
-  .domain([0, 1.0])
+  .domain([200000.0, 300000.0])
   .range([0, graphHeight / 3]);
 
 var graphFunction = d3.svg.area()
@@ -164,11 +163,10 @@ function update() {
   // update the graph container location
   var point = positionsProjected.last();
   graph.attr("transform", "translate(" + point.x + "," + point.y + ")");
-/*
   graphs.forEach(function(gr) {
     gr.attr('d', graphFunction);
   });
-*/
+
   // set the domain of the time graph
 }
 var transition = d3.select({}).transition()
@@ -179,7 +177,8 @@ var transition = d3.select({}).transition()
   transition = transition.each(function() {
     // update the domains
     var now = new Date();
-    x.domain([now - (graphN - 2) * duration, now - duration]);
+    var domain = [now - (graphN - 2) * duration, now - duration];
+    x.domain(domain);
     // redraw the line
     graphs.forEach(function(gr) {
       gr.attr("d", graphFunction)
@@ -203,7 +202,6 @@ function processEvent(event) {
     switch (msg.type) {
       case "position":
         // update the postiion of the car itself and therefore the overlay charts.
-        delete (msg.type);
         var lat = parseFloat(msg.latitude_degrees);
         var lon = parseFloat(msg.longitude_degrees);
         positions.push([lat, lon]);
@@ -229,15 +227,21 @@ function processEvent(event) {
   }
 }
 
+var serverOffset = 0; // (5 * 60 + now.getTimezoneOffset()) * 60 * 1000;
+function processNetwork(type) {
+  return function(event) {
+    data.rates[type].push({t: event.timestamp + serverOffset, v: event.statusMetrics.bytesWritten});
+    mutateLimitTo(data.rates[type], graphN);
+    update();
+  };
+}
+
 var eb = new vertx.EventBus('http://ec2-52-33-241-152.us-west-2.compute.amazonaws.com:8050/eventbus/');
 eb.onopen = function() {
   eb.registerHandler("test.123", processEvent);
+  eb.registerHandler("realtime", processNetwork('lte'));
+  eb.registerHandler("wifi", processNetwork('wifi'));
 };
-
-function resize() {
-
-}
-d3.select(window).on('resize', resize);
 
 if (!Array.prototype.last) {
   Array.prototype.last = function() {
