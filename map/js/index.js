@@ -1,7 +1,7 @@
 
 // settings
 var graphWidth = 250;
-var graphHeight = 300;
+var graphHeight = 100;
 
 var trailDepth = 30;
 var graphN = 60;
@@ -120,19 +120,19 @@ var graph = g.append("g")
   .attr({
     class: "graphContainer",
     width: graphWidth + 20,
-    height: graphHeight + 20
+    height: graphHeight * 3 + 20
   });
 var graphs = ['wifi', 'lte'].map(function(v, i) {
   var gc = graph.append('g')
     .attr("width", graphWidth)
-    .attr("height", (i + 1) * graphHeight / 3)
-    .attr("transform", "translate(10," + (i * graphHeight / 3 + 10) + ")");
+    .attr("height", (i + 1) * graphHeight)
+    .attr("transform", "translate(10," + (i * graphHeight + 10) + ")");
   gc.append('rect')
     .attr('class', 'plot')
     .attr('x', 0)
     .attr('y', 0)
     .attr('width', graphWidth)
-    .attr('height', graphHeight / 3);
+    .attr('height', graphHeight);
   gc.append("text").text(v).attr('class', 'label');
   return gc.append('path')
     .attr("class", "graph " + v)
@@ -149,7 +149,7 @@ var x = d3.time.scale()
 
 var y = d3.scale.linear()
   .domain([200000.0, 300000.0])
-  .range([0, graphHeight / 3]);
+  .range([0, graphHeight]);
 
 var graphFunction = d3.svg.area()
                       .x(function(d) { return x(d.t); })
