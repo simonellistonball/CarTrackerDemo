@@ -140,20 +140,25 @@ var graphs = ['wifi', 'lte'].map(function(v, i) {
     .datum(data.rates[v]);
 });
 
-var duration = 5000;
+var duration = 1000;
 
 var now = new Date();
 var x = d3.time.scale()
     .domain([now - (graphN - 2) * duration, now - duration])
     .range([0, graphWidth]);
 
-var y = d3.scale.linear()
+var y = {
+  wifi: d3.scale.linear()
   .domain([200000.0, 300000.0])
-  .range([0, graphHeight]);
+  .range([0, graphHeight]),
+  lte: d3.scale.linear()
+  .domain([200000.0, 300000.0])
+  .range([0, graphHeight])
+};
 
 var graphFunction = d3.svg.area()
                       .x(function(d) { return x(d.t); })
-                      .y(function(d) { return y(d.v); })
+                      .y(function(d) { return y[d.n](d.v); })
                       .interpolate("linear");
 
 function update() {
@@ -210,10 +215,6 @@ function processEvent(event) {
         mutateLimitTo(positions, trailDepth);
         mutateLimitTo(positionsProjected, trailDepth);
         break;
-      case "rate":
-        // get stats from the nifi api on the rates for wifi or lte, show as a rate chart for the car
-        mutateLimitTo(data.rates[msg.network].push({t: msg.t, v: msg.v}), graphN);
-        break;
       case "sensor":
         // a time series for the car, same as rates, but with a class.
         mutateLimitTo(data.sensors[msg.sensor].push({t: msg.t, v: msg.v}), graphN);
@@ -230,8 +231,15 @@ function processEvent(event) {
 var serverOffset = 0; // (5 * 60 + now.getTimezoneOffset()) * 60 * 1000;
 function processNetwork(type) {
   return function(event) {
-    data.rates[type].push({t: event.timestamp + serverOffset, v: event.statusMetrics.bytesWritten});
+    data.rates[type].push({n: type, t: event.timestamp + serverOffset, v: event.statusMetrics.bytesWritten / 5});
     mutateLimitTo(data.rates[type], graphN);
+    // change the scales if required.
+    function extractValue(o) { return o.v; }
+    d3.max(data.rates[type].map(extractValue));
+    var min = d3.min(data.rates[type].map(extractValue)) - 10;
+    var max = d3.max(data.rates[type].map(extractValue)) + 10;
+    y[type].domain([min, max]);
+    console.log(type, [min, max]);
     update();
   };
 }
