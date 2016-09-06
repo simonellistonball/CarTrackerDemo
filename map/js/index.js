@@ -140,7 +140,7 @@ var graphs = ['wifi', 'lte'].map(function(v, i) {
     .datum(data.rates[v]);
 });
 
-var duration = 1000;
+var duration = 5000;
 
 var now = new Date();
 var x = d3.time.scale()
@@ -239,7 +239,6 @@ function processNetwork(type) {
     var min = d3.min(data.rates[type].map(extractValue)) - 10;
     var max = d3.max(data.rates[type].map(extractValue)) + 10;
     y[type].domain([min, max]);
-    console.log(type, [min, max]);
     update();
   };
 }
